@@ -16,17 +16,17 @@ def get_session():
 
 app = FastAPI()
 
-@app.get('/')
+@app.get('/api/getposts')
 def getPosts(session: Session = Depends(get_session)): 
     posts = session.query(models.Post).all()
     return posts
 
-@app.get("/{id}")
+@app.get("/api/getposts/{id}")
 def getPost(id:int, session: Session = Depends(get_session)):
     post = session.query(models.Post).get(id)
     return post
 
-@app.post('/')
+@app.post('/api/createpost')
 def createPost(post:schemas.Post, session: Session = Depends(get_session)):
     post = models.Post(text = post.text)
     session.add(post)
@@ -34,14 +34,14 @@ def createPost(post:schemas.Post, session: Session = Depends(get_session)):
     session.refresh(post)
     return post
 
-@app.put('/{id}')
+@app.put('/api/updatepost/{id}')
 def updatePost(id:int, post:schemas.Post, session: Session = Depends(get_session)):
     postObject = session.query(models.Post).get(id)
     postObject.text = post.text
     session.commit()
     return postObject
 
-@app.delete('/{id}')
+@app.delete('/api/deletepost/{id}')
 def deletePost(id:int, session: Session = Depends(get_session)):
     postObject = session.query(models.Post).get(id)
     session.delete(postObject)

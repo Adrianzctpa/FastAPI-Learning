@@ -1,14 +1,25 @@
 import React from 'react'
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes} from "react-router-dom"
+import Home from './components/Home'
+import Login from './components/Login'
+
 import PostContext from './contexts/PostContext';
 
 function App() {
   
   const context = React.useContext(PostContext)
+  console.log(context)
 
   return (
-    <div className="App">
-      {context.posts.map((obj) => <h1 key={obj.id}>{obj.text}</h1>)}
-    </div>
+    <Router>
+      <Routes>
+        <Route path='' element={<Home />} />
+        <Route path="login/" element={<Login />} />
+      </Routes>
+    </Router>
   );
 }
 

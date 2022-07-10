@@ -2,10 +2,10 @@ from fastapi import FastAPI, Depends, HTTPException
 import schemas
 import models
 
+from datetime import timedelta
 from utils.auth import AuthHandler
 
 from database import Base, engine, SessionLocal
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 Base.metadata.create_all(engine)
@@ -21,40 +21,44 @@ app = FastAPI()
 
 auth = AuthHandler()
 
-@app.get('/api/getposts')
-def getPosts(session: Session = Depends(get_session)): 
+def get_user_object(session, uid):
+    user_query = session.query(models.User).get(uid)
+    return user_query
+
+@app.get('/api/posts')
+def getPosts(session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)): 
     posts = session.query(models.Post).all()
     return posts
 
-@app.get("/api/getposts/{id}")
-def getPost(id:int, session: Session = Depends(get_session)):
+@app.get("/api/posts/{id}")
+def getPost(id:int, session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):
     post = session.query(models.Post).get(id)
     return post
 
-@app.post('/api/createpost')
-def createPost(post:schemas.Post, session: Session = Depends(get_session)):
+@app.post('/api/posts')
+def createPost(post:schemas.Post, session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):
     post = models.Post(text = post.text)
     session.add(post)
     session.commit()
     session.refresh(post)
     return post
 
-@app.put('/api/updatepost/{id}')
-def updatePost(id:int, post:schemas.Post, session: Session = Depends(get_session)):
+@app.put('/api/posts/{id}')
+def updatePost(id:int, post:schemas.Post, session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):
     postObject = session.query(models.Post).get(id)
     postObject.text = post.text
     session.commit()
     return postObject
 
-@app.delete('/api/deletepost/{id}')
-def deletePost(id:int, session: Session = Depends(get_session)):
+@app.delete('/api/posts/{id}')
+def deletePost(id:int, session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):
     postObject = session.query(models.Post).get(id)
     session.delete(postObject)
     session.commit()
     session.close()
     return {'status': 200, 'text': 'Item was deleted'}
 
-@app.post('/api/register')
+@app.post('/api/user/register')
 def register(user: schemas.User, session: Session = Depends(get_session)):
     query = session.query(models.User.username).filter_by(username=user.username).first()
     
@@ -69,7 +73,7 @@ def register(user: schemas.User, session: Session = Depends(get_session)):
     session.refresh(userObject)
     return userObject
 
-@app.post('/api/login')
+@app.post('/api/user/login')
 def login(user: schemas.User, session: Session = Depends(get_session)):
     exist_query = session.query(models.User.username).filter_by(username=user.username).first()
 
@@ -81,5 +85,10 @@ def login(user: schemas.User, session: Session = Depends(get_session)):
     if not auth.verify(user.password, user_query.password):
         raise HTTPException(status_code=404, detail='Username and/or password are invalid')
     
-    token = auth.encode_token(user_query.id)
-    return {'status':200,'token': token}
+    tokens = auth.generate_tokens(user_query.id)
+    return {'status':200, 'access': tokens['ac'], 'refresh': tokens['rf']}
+
+@app.post('/api/token/refresh')
+def refresh(token=Depends(auth.token_wrapper)):
+    new_tokens = auth.decode_refresh_token(token)
+    return {'status': 200, 'access': new_tokens['access'], 'refresh': new_tokens['refresh']}

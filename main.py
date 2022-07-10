@@ -2,7 +2,6 @@ from fastapi import FastAPI, Depends, HTTPException
 import schemas
 import models
 
-from datetime import timedelta
 from utils.auth import AuthHandler
 
 from database import Base, engine, SessionLocal
@@ -37,7 +36,7 @@ def getPost(id:int, session: Session = Depends(get_session), uid=Depends(auth.au
 
 @app.post('/api/posts')
 def createPost(post:schemas.Post, session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):
-    post = models.Post(text = post.text)
+    post = models.Post(text = post.text, owner_id = uid)
     session.add(post)
     session.commit()
     session.refresh(post)

@@ -57,7 +57,7 @@ class AuthHandler():
         return {'ac': access, 'rf': refresh}
 
     def auth_wrapper(self, auth: HTTPAuthorizationCredentials = Security(bearer)):
-        return self.decode_token(auth.credentials)   
+        return self.decode_access_token(auth.credentials)   
 
     def token_wrapper(self, auth: HTTPAuthorizationCredentials = Security(bearer)):
         return auth.credentials        

@@ -44,14 +44,24 @@ def createPost(post:schemas.Post, session: Session = Depends(get_session), uid=D
 
 @app.put('/api/posts/{id}')
 def updatePost(id:int, post:schemas.Post, session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):
-    postObject = session.query(models.Post).get(id)
+    posts = session.query(models.Post).filter_by(owner_id=uid)
+    postObject = posts.filter_by(id=id).first()
+
+    if postObject is None:
+        raise HTTPException(status_code=403, detail='FORBIDDEN')
+
     postObject.text = post.text
     session.commit()
     return postObject
 
 @app.delete('/api/posts/{id}')
 def deletePost(id:int, session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):
-    postObject = session.query(models.Post).get(id)
+    posts = session.query(models.Post).filter_by(owner_id=uid)
+    postObject = posts.filter_by(id=id).first()    
+
+    if postObject is None:
+        raise HTTPException(status_code=403, detail='FORBIDDEN')
+
     session.delete(postObject)
     session.commit()
     session.close()
@@ -86,6 +96,15 @@ def login(user: schemas.User, session: Session = Depends(get_session)):
     
     tokens = auth.generate_tokens(user_query.id)
     return {'status':200, 'access': tokens['ac'], 'refresh': tokens['rf']}
+
+@app.get('/api/user/posts')
+def getUserPosts(session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):
+    posts = session.query(models.Post).filter_by(owner_id=uid)
+    postsList = []
+
+    for post in posts:
+        postsList.append(post)
+    return postsList
 
 @app.post('/api/token/refresh')
 def refresh(token=Depends(auth.token_wrapper)):

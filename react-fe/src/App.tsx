@@ -1,4 +1,3 @@
-import React from 'react'
 import {
   BrowserRouter as Router,
   Route,
@@ -6,13 +5,8 @@ import {
 import Home from './components/Home'
 import Login from './components/Login'
 
-import PostContext from './contexts/PostContext';
-
 function App() {
   
-  const context = React.useContext(PostContext)
-  console.log(context)
-
   return (
     <Router>
       <Routes>

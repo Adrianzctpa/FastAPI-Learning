@@ -19,18 +19,21 @@ export const PostProvider = ({children}: any) => {
     const [isLoading, setLoading] = React.useState<boolean>(true)
 
     React.useEffect(() => {
+
+        if (!isLoading) return
+
         async function fetchData() {
-            let response = await fetch("/api/getposts")
+            let response = await fetch("/api/posts")
             let data = await response.json()
         
             setPosts(data)
-
-            if (isLoading) {
-                setLoading(false)
-            }
         }
 
         fetchData()
+
+        if (isLoading) {
+            setLoading(false)
+        }
     }, [isLoading])
     
     const context = {

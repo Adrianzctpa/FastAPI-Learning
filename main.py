@@ -27,7 +27,7 @@ def get_user_object(session, uid):
 
 @app.get('/api/posts')
 def getPosts(session: Session = Depends(get_session), 
-    page_num: int = 1, page_size: int = 10): 
+    page_num: int = 1, page_size: int = 10, uid=Depends(auth.auth_wrapper)): 
     
     posts = session.query(models.Post)
     
@@ -114,14 +114,11 @@ def login(user: schemas.User, session: Session = Depends(get_session)):
     return {'status':200, 'access': tokens['ac'], 'refresh': tokens['rf']}
 
 @app.get('/api/user/posts')
-def getUserPosts(session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):
+def getUserPosts(session: Session = Depends(get_session), page_num: int = 1, 
+                page_size: int = 10, uid=Depends(auth.auth_wrapper)):
     
     posts = session.query(models.Post).filter_by(owner_id=uid)
-    postsList = []
-
-    for post in posts:
-        postsList.append(post)
-    return postsList
+    return Paginator.paginate(posts, page_num, page_size, '/api/user/posts')
 
 @app.post('/api/token/refresh')
 def refresh(token=Depends(auth.token_wrapper)):

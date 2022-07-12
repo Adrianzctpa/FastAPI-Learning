@@ -3,6 +3,7 @@ import schemas
 import models
 
 from utils.auth import AuthHandler
+from utils.pagination import Paginator
 
 from database import Base, engine, SessionLocal
 from sqlalchemy.orm import Session
@@ -25,17 +26,24 @@ def get_user_object(session, uid):
     return user_query
 
 @app.get('/api/posts')
-def getPosts(session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)): 
-    posts = session.query(models.Post).all()
-    return posts
+def getPosts(session: Session = Depends(get_session), 
+    page_num: int = 1, page_size: int = 10): 
+    
+    posts = session.query(models.Post)
+    
+    return Paginator.paginate(posts, page_num, page_size, "/api/posts")
 
 @app.get("/api/posts/{id}")
-def getPost(id:int, session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):
+def getPost(id:int, session: Session = Depends(get_session), 
+    uid=Depends(auth.auth_wrapper)):
+   
     post = session.query(models.Post).get(id)
     return post
 
 @app.post('/api/posts')
-def createPost(post:schemas.Post, session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):
+def createPost(post:schemas.Post, session: Session = Depends(get_session), 
+    uid=Depends(auth.auth_wrapper)):
+    
     post = models.Post(text = post.text, owner_id = uid)
     session.add(post)
     session.commit()
@@ -43,7 +51,10 @@ def createPost(post:schemas.Post, session: Session = Depends(get_session), uid=D
     return post
 
 @app.put('/api/posts/{id}')
-def updatePost(id:int, post:schemas.Post, session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):
+def updatePost(id:int, post:schemas.Post, 
+    session: Session = Depends(get_session), 
+    uid=Depends(auth.auth_wrapper)):
+
     posts = session.query(models.Post).filter_by(owner_id=uid)
     postObject = posts.filter_by(id=id).first()
 
@@ -55,7 +66,10 @@ def updatePost(id:int, post:schemas.Post, session: Session = Depends(get_session
     return postObject
 
 @app.delete('/api/posts/{id}')
-def deletePost(id:int, session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):
+def deletePost(id:int, 
+    session: Session = Depends(get_session), 
+    uid=Depends(auth.auth_wrapper)):
+    
     posts = session.query(models.Post).filter_by(owner_id=uid)
     postObject = posts.filter_by(id=id).first()    
 
@@ -69,6 +83,7 @@ def deletePost(id:int, session: Session = Depends(get_session), uid=Depends(auth
 
 @app.post('/api/user/register')
 def register(user: schemas.User, session: Session = Depends(get_session)):
+   
     query = session.query(models.User.username).filter_by(username=user.username).first()
     
     if query is not None:
@@ -84,6 +99,7 @@ def register(user: schemas.User, session: Session = Depends(get_session)):
 
 @app.post('/api/user/login')
 def login(user: schemas.User, session: Session = Depends(get_session)):
+    
     exist_query = session.query(models.User.username).filter_by(username=user.username).first()
 
     if (exist_query is None):
@@ -99,6 +115,7 @@ def login(user: schemas.User, session: Session = Depends(get_session)):
 
 @app.get('/api/user/posts')
 def getUserPosts(session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):
+    
     posts = session.query(models.Post).filter_by(owner_id=uid)
     postsList = []
 
@@ -108,5 +125,6 @@ def getUserPosts(session: Session = Depends(get_session), uid=Depends(auth.auth_
 
 @app.post('/api/token/refresh')
 def refresh(token=Depends(auth.token_wrapper)):
+    
     new_tokens = auth.decode_refresh_token(token)
     return {'status': 200, 'access': new_tokens['access'], 'refresh': new_tokens['refresh']}

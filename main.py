@@ -30,7 +30,6 @@ def getPosts(session: Session = Depends(get_session),
     page_num: int = 1, page_size: int = 10, uid=Depends(auth.auth_wrapper)): 
     
     posts = session.query(models.Post)
-    
     return Paginator.paginate(posts, page_num, page_size, "/api/posts")
 
 @app.get("/api/posts/{id}")
@@ -119,6 +118,12 @@ def getUserPosts(session: Session = Depends(get_session), page_num: int = 1,
     
     posts = session.query(models.Post).filter_by(owner_id=uid)
     return Paginator.paginate(posts, page_num, page_size, '/api/user/posts')
+
+@app.get('/api/user')
+def getUserInfo(session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):
+   
+    user = session.query(models.User).get(uid)
+    return {'username':user.username}
 
 @app.post('/api/token/refresh')
 def refresh(token=Depends(auth.token_wrapper)):

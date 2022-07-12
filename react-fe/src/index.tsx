@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { PostProvider } from './contexts/PostContext';
+import { AuthProvider } from './contexts/AuthContext'
+import { DBProvider } from './contexts/DBContext';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(
@@ -9,9 +10,11 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <PostProvider>
-      <App />
-    </PostProvider>
+    <AuthProvider>
+      <DBProvider>
+        <App />
+      </DBProvider>
+    </AuthProvider>
   </React.StrictMode>
 );
 

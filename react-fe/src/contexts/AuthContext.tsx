@@ -8,7 +8,9 @@ interface Token {
 interface Props {
     tokens: Token,
     logstatus: boolean,
-    login: (e: React.FormEvent<HTMLFormElement>) => void 
+    login: (e: React.FormEvent<HTMLFormElement>) => void,
+    logout: () => void,
+    refresh: () => void
 }
 
 const AuthContext = React.createContext<Props>(null!)
@@ -44,10 +46,35 @@ export const AuthProvider = ({children}: any) => {
         }
     }
 
+    const logout = async () => {
+        localStorage.removeItem('tokens')
+        setTokens('')
+        setLogstatus(false)
+    }
+
+    const refreshTokens = async () => {
+        let response = await fetch('/api/token/refresh', { 
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${tokens.refresh}`
+            }
+        })
+        let data = await response.json()
+
+        if (response.status === 200) {
+            localStorage.setItem('tokens', JSON.stringify({'access': data.access, 'refresh': data.refresh}))
+            setTokens({'access': data.access, 'refresh': data.refresh})
+            setLogstatus(true)
+            window.location.reload()
+        }
+    }
+
     const context = {
         tokens: tokens,
         logstatus: logstatus,
-        login: login,        
+        login: login,
+        logout: logout,
+        refresh: refreshTokens        
     }
     
     return (

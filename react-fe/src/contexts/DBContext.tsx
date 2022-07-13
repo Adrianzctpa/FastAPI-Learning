@@ -2,6 +2,7 @@ import React from 'react'
 import AuthContext from './AuthContext'
 
 interface Post {
+    username: string,
     text: string,
     id: number
 }
@@ -17,8 +18,8 @@ export default DBContext;
 
 export const DBProvider = ({children}: any) => {
     
-    const { tokens }  = React.useContext(AuthContext)
-    const [posts, setPosts] = React.useState<any>('')
+    const { tokens, refresh }  = React.useContext(AuthContext)
+    const [posts, setPosts] = React.useState<any>({})
     const [isLoading, setLoading] = React.useState<boolean>(true)
     const [username, setUsername] = React.useState<any>('')
 
@@ -27,33 +28,48 @@ export const DBProvider = ({children}: any) => {
         if (!isLoading) return
 
         async function getPosts() {
-            let response = await fetch("/api/posts")
-            let data = await response.json()
+            if (!tokens) return
+
+            let response = await fetch("/api/posts", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${tokens.access}`
+                }
+            })
         
-            setPosts(data)
+            let data = await response.json()
+            if (response.status === 200) {
+                setPosts(data.data)
+            } else {
+                refresh()
+            }
         }
 
         async function getUsername() {
+            if (!tokens) return
+
             let response = await fetch("/api/user", {
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${tokens.access}`
                 }
             })
-            let data = await response.json()
 
+            let data = await response.json()
             if (response.status === 200) {
                 setUsername(data.username)
+            } else {
+                refresh()
             }
         }
-
+        
         getPosts()
         getUsername()
 
         if (isLoading) {
             setLoading(false)
         }
-    }, [isLoading, tokens])
+    }, [isLoading, tokens, refresh])
     
     const context = {
         posts: posts,

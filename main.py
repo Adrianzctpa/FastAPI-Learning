@@ -18,19 +18,15 @@ def get_session():
         session.close()
 
 app = FastAPI()
-
-auth = AuthHandler()
-
-def get_user_object(session, uid):
-    user_query = session.query(models.User).get(uid)
-    return user_query
+pag = Paginator()
+auth = AuthHandler()       
 
 @app.get('/api/posts')
 def getPosts(session: Session = Depends(get_session), 
     page_num: int = 1, page_size: int = 10, uid=Depends(auth.auth_wrapper)): 
     
     posts = session.query(models.Post)
-    return Paginator.paginate(posts, page_num, page_size, "/api/posts")
+    return pag.paginate(posts, page_num, page_size, "/api/posts", session)
 
 @app.get("/api/posts/{id}")
 def getPost(id:int, session: Session = Depends(get_session), 
@@ -117,7 +113,7 @@ def getUserPosts(session: Session = Depends(get_session), page_num: int = 1,
                 page_size: int = 10, uid=Depends(auth.auth_wrapper)):
     
     posts = session.query(models.Post).filter_by(owner_id=uid)
-    return Paginator.paginate(posts, page_num, page_size, '/api/user/posts')
+    return pag.paginate(posts, page_num, page_size, '/api/user/posts', session)
 
 @app.get('/api/user')
 def getUserInfo(session: Session = Depends(get_session), uid=Depends(auth.auth_wrapper)):

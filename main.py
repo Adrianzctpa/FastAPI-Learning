@@ -33,6 +33,7 @@ def getPost(id:int, session: Session = Depends(get_session),
     uid=Depends(auth.auth_wrapper)):
    
     post = session.query(models.Post).get(id)
+    post = pag.id_to_username(session, post)
     return post
 
 @app.post('/api/posts')

@@ -39,17 +39,24 @@ class Paginator():
         users = {}
         upd_query = {}
 
-        for post in query:
-            id = post.owner_id
-            postid = post.id
+        if hasattr(query, '__iter__'):
+            for post in query:
+                id = post.owner_id
+                postid = post.id
 
-            if id not in users:
-                user_obj = self.get_user_object(session, id)
-                users[f'{id}'] = user_obj.username
-            
-            upd_query[f'{postid}'] = {}
-            upd_query[f'{postid}']['username'] = users[f'{id}']
-            upd_query[f'{postid}']['id'] = postid
-            upd_query[f'{postid}']['text'] = post.text
+                if id not in users:
+                    user_obj = self.get_user_object(session, id)
+                    users[f'{id}'] = user_obj.username
+                
+                upd_query[f'{postid}'] = {}
+                upd_query[f'{postid}']['username'] = users[f'{id}']
+                upd_query[f'{postid}']['id'] = postid
+                upd_query[f'{postid}']['text'] = post.text
+        else:        
+            id = query.owner_id
+            user_obj = self.get_user_object(session, id)
+            upd_query['username'] = user_obj.username
+            upd_query['id'] = query.id
+            upd_query['text'] = query.text
 
         return upd_query     

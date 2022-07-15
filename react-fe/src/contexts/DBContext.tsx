@@ -1,7 +1,7 @@
 import React from 'react'
 import AuthContext from './AuthContext'
 
-interface Post {
+export interface Post {
     username: string,
     text: string,
     id: number
@@ -18,7 +18,7 @@ export default DBContext;
 
 export const DBProvider = ({children}: any) => {
     
-    const { tokens, refresh }  = React.useContext(AuthContext)
+    const { tokens, refresh, setLogstatus }  = React.useContext(AuthContext)
     const [posts, setPosts] = React.useState<any>({})
     const [isLoading, setLoading] = React.useState<boolean>(true)
     const [username, setUsername] = React.useState<any>('')
@@ -40,6 +40,7 @@ export const DBProvider = ({children}: any) => {
             let data = await response.json()
             if (response.status === 200) {
                 setPosts(data.data)
+                setLogstatus(true)
             } else {
                 refresh()
             }
@@ -58,6 +59,7 @@ export const DBProvider = ({children}: any) => {
             let data = await response.json()
             if (response.status === 200) {
                 setUsername(data.username)
+                setLogstatus(true)
             } else {
                 refresh()
             }
@@ -69,7 +71,7 @@ export const DBProvider = ({children}: any) => {
         if (isLoading) {
             setLoading(false)
         }
-    }, [isLoading, tokens, refresh])
+    }, [isLoading, tokens, refresh, setLogstatus])
     
     const context = {
         posts: posts,

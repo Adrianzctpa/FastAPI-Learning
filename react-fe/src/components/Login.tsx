@@ -27,6 +27,7 @@ function Login() {
         
                         <button type='submit'>Submit</button>
                     </form>
+                    <Link to="/register">Register</Link>
                 </>
             )}
             <Link to='/'>Go back</Link>

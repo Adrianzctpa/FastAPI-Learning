@@ -23,7 +23,7 @@ function CreatePosts() {
 
         if (response.status === 200) {
             alert('Post created')
-            navigate(`/post/${data.id}`)
+            navigate(`/posts/${data.id}`)
         }
     }
 

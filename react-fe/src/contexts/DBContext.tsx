@@ -9,7 +9,9 @@ export interface Post {
 
 interface Props {
     posts: Array<Post>,
-    username: string
+    username: string,
+    pages: number,
+    setPosts: (posts: Array<Post>) => void
 }
 
 const DBContext = React.createContext<Props>(null!)
@@ -21,7 +23,8 @@ export const DBProvider = ({children}: any) => {
     const { tokens, refresh, setLogstatus }  = React.useContext(AuthContext)
     const [posts, setPosts] = React.useState<any>({})
     const [isLoading, setLoading] = React.useState<boolean>(true)
-    const [username, setUsername] = React.useState<any>('')
+    const [username, setUsername] = React.useState<string>('')
+    const [pages, setPages] = React.useState<number>(0)
 
     React.useEffect(() => {
 
@@ -40,6 +43,7 @@ export const DBProvider = ({children}: any) => {
             let data = await response.json()
             if (response.status === 200) {
                 setPosts(data.data)
+                setPages(data.pages)
                 setLogstatus(true)
             } else {
                 refresh()
@@ -75,7 +79,9 @@ export const DBProvider = ({children}: any) => {
     
     const context = {
         posts: posts,
-        username: username
+        username: username,
+        pages: pages,
+        setPosts: setPosts,
     }
     
     return (

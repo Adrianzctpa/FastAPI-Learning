@@ -12,6 +12,7 @@ function Home() {
                 <>
                     <Link to='/posts'>Let's check some posts!</Link>
                     <Link to='/login'>Logout</Link>
+                    <Link to='/posts/create'>Create Post</Link>
                 </> : (
                 <>
                     <Link to="/login">Login</Link>

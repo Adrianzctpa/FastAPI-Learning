@@ -4,6 +4,7 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # User-specific files
+package-lock.json
 db.sqlite3
 *.db
 *.rsuser

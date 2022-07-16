@@ -1,4 +1,5 @@
 import models
+import math
 
 class Paginator(): 
     def paginate(self, query, query_num, query_size, url, session):  
@@ -11,6 +12,7 @@ class Paginator():
             "data": self.id_to_username(session, query),
             "total": query_length,
             "count": query_size,
+            "pages": math.ceil(query_length / query_size),
             "pagination": {}
         }
 

@@ -7,28 +7,31 @@ export interface Post {
     id: number
 }
 
+interface PostsObject {
+    [key: number]: Post
+}
+
 interface Props {
-    posts: Array<Post>,
+    posts: PostsObject,
     username: string,
     pages: number,
-    setPosts: (posts: Array<Post>) => void
+    setPosts: (posts: PostsObject) => void,
 }
 
 const DBContext = React.createContext<Props>(null!)
 
 export default DBContext;
 
-export const DBProvider = ({children}: any) => {
+export const DBProvider = ({children}: {children: React.ReactNode}) => {
     
-    const { tokens, refresh, setLogstatus }  = React.useContext(AuthContext)
-    const [posts, setPosts] = React.useState<any>({})
-    const [isLoading, setLoading] = React.useState<boolean>(true)
+    const { tokens, loading, refresh, setLogstatus, setLoading }  = React.useContext(AuthContext)
+    const [posts, setPosts] = React.useState<PostsObject>({})
     const [username, setUsername] = React.useState<string>('')
     const [pages, setPages] = React.useState<number>(0)
 
     React.useEffect(() => {
 
-        if (!isLoading) return
+        if (!loading) return 
 
         async function getPosts() {
             if (!tokens) return
@@ -72,10 +75,10 @@ export const DBProvider = ({children}: any) => {
         getPosts()
         getUsername()
 
-        if (isLoading) {
+        if (loading) {
             setLoading(false)
         }
-    }, [isLoading, tokens, refresh, setLogstatus])
+    }, [loading, tokens, refresh, setLogstatus, setLoading])
     
     const context = {
         posts: posts,
@@ -86,7 +89,7 @@ export const DBProvider = ({children}: any) => {
     
     return (
         <DBContext.Provider value={context}>
-            {isLoading ? "Loading ..." : children}
+            {loading ? "Loading ..." : children}
         </DBContext.Provider>
     )
 }

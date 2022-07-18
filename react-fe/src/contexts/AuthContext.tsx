@@ -11,17 +11,20 @@ interface Props {
     login: (e: React.FormEvent<HTMLFormElement>) => void,
     logout: () => void,
     refresh: () => void,
-    setLogstatus: (logstatus: boolean) => void
+    setLogstatus: (logstatus: boolean) => void,
+    loading: boolean,
+    setLoading: (loading: boolean) => void
 }
 
 const AuthContext = React.createContext<Props>(null!)
 
 export default AuthContext;
 
-export const AuthProvider = ({children}: any) => {
+export const AuthProvider = ({ children }: {children: React.ReactNode}) => {
     
-    const [tokens, setTokens] = React.useState<any>(JSON.parse(localStorage.getItem('tokens')!))
+    const [tokens, setTokens] = React.useState<Token>(JSON.parse(localStorage.getItem('tokens')!))
     const [logstatus, setLogstatus] = React.useState<boolean>(false)
+    const [loading, setLoading] = React.useState<boolean>(true)
 
     const login = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -42,7 +45,6 @@ export const AuthProvider = ({children}: any) => {
             localStorage.setItem('tokens', JSON.stringify({'access': data.access, 'refresh': data.refresh}))
             setTokens({'access': data.access, 'refresh': data.refresh})
             setLogstatus(true)
-            window.location.reload()
         } else {
             console.log('error', data)
         }
@@ -50,7 +52,7 @@ export const AuthProvider = ({children}: any) => {
 
     const logout = async () => {
         localStorage.removeItem('tokens')
-        setTokens('')
+        setTokens({'access': '', 'refresh': ''})
         setLogstatus(false)
     }
 
@@ -67,17 +69,19 @@ export const AuthProvider = ({children}: any) => {
             localStorage.setItem('tokens', JSON.stringify({'access': data.access, 'refresh': data.refresh}))
             setTokens({'access': data.access, 'refresh': data.refresh})
             setLogstatus(true)
-            window.location.reload()
+            setLoading(true)
         }
     }
 
     const context = {
         tokens: tokens,
         logstatus: logstatus,
+        loading: loading,
         login: login,
         logout: logout,
         refresh: refreshTokens,
-        setLogstatus: setLogstatus,        
+        setLogstatus: setLogstatus,
+        setLoading: setLoading,        
     }
     
     return (

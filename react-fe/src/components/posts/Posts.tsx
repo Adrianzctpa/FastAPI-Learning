@@ -3,11 +3,18 @@ import AuthContext from '../../contexts/AuthContext'
 import DBContext from '../../contexts/DBContext';
 import {useNavigate} from 'react-router-dom'
 
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemText from '@mui/material/ListItemText'
+import Divider from '@mui/material/Divider'
+
+import styled from 'styled-components'
+
 function Posts() {
     const {posts, pages, setPosts} = React.useContext(DBContext)
     const {tokens} = React.useContext(AuthContext)
 
-    const [loop, setLoop] = React.useState<Array<object>>([])
+    const [loop, setLoop] = React.useState<React.ReactNode>([])
     const [paginate, setPaginate] = React.useState<Array<object>>([])
 
     const navigate = useNavigate()
@@ -15,6 +22,10 @@ function Posts() {
 
     React.useEffect(() => {
         const values = Object.values(posts) 
+
+        const HoverPost = styled(ListItem)`
+            cursor: pointer;
+        `;
         
         const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
             e.preventDefault()
@@ -33,10 +44,16 @@ function Posts() {
         }
 
         const postLoop = values.map((post) => {
+            if (post.text.length > 100) {
+                post.text = post.text.slice(0, 100) + '...'
+            }
+
             return ( 
-                <div onClick={() => navigate(`/posts/${post.id}`)} key={post.id}>
-                    <h1>{post.text}</h1>
-                    <h5>por {post.username}</h5>
+                <div key={post.id}>
+                    <HoverPost onClick={() => navigate(`/posts/${post.id}`)}>
+                        <ListItemText primary={post.username} secondary={post.text} />
+                    </HoverPost>
+                    <Divider variant="inset" component="li" />
                 </div>
             )
         })
@@ -63,7 +80,13 @@ function Posts() {
 
     return (
         <>
-            {loop}
+            <List sx={{
+                width:'100%',
+                maxWidth: 360,
+                bgcolor: 'background.papeer'
+            }}>
+                {loop}
+            </List>
             {paginate}
         </>
     )

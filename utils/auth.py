@@ -49,7 +49,7 @@ class AuthHandler():
 
     def generate_tokens(self, id):
         access = self.encode_token({'id': id, 
-        'time': timedelta(minutes=10), 
+        'time': timedelta(minutes=30), 
         'scope': 'AC'})
         refresh = self.encode_token({'id': id, 
         'time': timedelta(hours=10), 

@@ -45,8 +45,7 @@ export const AuthProvider = ({ children }: {children: React.ReactNode}) => {
             localStorage.setItem('tokens', JSON.stringify({'access': data.access, 'refresh': data.refresh}))
             setTokens({'access': data.access, 'refresh': data.refresh})
             setLogstatus(true)
-        } else {
-            console.log('error', data)
+            setLoading(true)
         }
     }
 
@@ -70,6 +69,8 @@ export const AuthProvider = ({ children }: {children: React.ReactNode}) => {
             setTokens({'access': data.access, 'refresh': data.refresh})
             setLogstatus(true)
             setLoading(true)
+        } else {
+            setLogstatus(false)
         }
     }
 

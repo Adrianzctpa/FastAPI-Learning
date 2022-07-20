@@ -26,6 +26,9 @@ def getPosts(session: Session = Depends(get_session),
     page_num: int = 1, page_size: int = 10, uid=Depends(auth.auth_wrapper)): 
     
     posts = session.query(models.Post)
+
+    if posts.count() == 0: raise HTTPException(status_code=404, detail='NO POSTS')
+
     return pag.paginate(posts, page_num, page_size, "/api/posts", session)
 
 @app.get("/api/posts/{id}")

@@ -3,12 +3,12 @@ import AuthContext from '../../contexts/AuthContext'
 import DBContext from '../../contexts/DBContext';
 import {useNavigate} from 'react-router-dom'
 
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import Divider from '@mui/material/Divider'
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 
-import styled from 'styled-components'
 
 function Posts() {
     const {posts, pages, setPosts} = React.useContext(DBContext)
@@ -23,10 +23,6 @@ function Posts() {
     React.useEffect(() => {
         const values = Object.values(posts) 
 
-        const HoverPost = styled(ListItem)`
-            cursor: pointer;
-        `;
-        
         const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
             e.preventDefault()
             const button: HTMLButtonElement = e.currentTarget
@@ -50,10 +46,22 @@ function Posts() {
 
             return ( 
                 <div key={post.id}>
-                    <HoverPost onClick={() => navigate(`/posts/${post.id}`)}>
-                        <ListItemText primary={post.username} secondary={post.text} />
-                    </HoverPost>
-                    <Divider variant="inset" component="li" />
+                    <Card sx={{ minWidth: 275 }}>
+                        <CardContent>
+                            <Typography variant="h5" component="div">
+                                TITLE
+                            </Typography>
+                            <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                BY {post.username}
+                            </Typography>
+                            <Typography variant="body2">
+                                {post.text}
+                            </Typography>
+                        </CardContent>
+                        <CardActions>
+                            <Button onClick={() => navigate(`/posts/${post.id}`)} size="small">Check this post</Button>
+                        </CardActions>
+                    </Card>
                 </div>
             )
         })
@@ -80,14 +88,12 @@ function Posts() {
 
     return (
         <>
-            <List sx={{
-                width:'100%',
-                maxWidth: 360,
-                bgcolor: 'background.papeer'
-            }}>
-                {loop}
-            </List>
-            {paginate}
+            {Object.values(posts).length === 0 ? <h1>No posts yet!</h1> : (
+                <>
+                    {loop}
+                    {paginate}
+                </>
+            )}
         </>
     )
 }

@@ -44,6 +44,8 @@ export const DBProvider = ({children}: {children: React.ReactNode}) => {
             })
         
             let data = await response.json()
+            if (response.status === 404) return
+
             if (response.status === 200) {
                 setPosts(data.data)
                 setPages(data.pages)
@@ -64,6 +66,8 @@ export const DBProvider = ({children}: {children: React.ReactNode}) => {
             })
 
             let data = await response.json()
+            if (response.status === 404) return
+
             if (response.status === 200) {
                 setUsername(data.username)
                 setLogstatus(true)
@@ -72,8 +76,8 @@ export const DBProvider = ({children}: {children: React.ReactNode}) => {
             }
         }
         
-        getPosts()
         getUsername()
+        getPosts()
 
         if (loading) {
             setLoading(false)

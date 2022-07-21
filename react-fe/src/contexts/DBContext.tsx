@@ -3,7 +3,9 @@ import AuthContext from './AuthContext'
 
 export interface Post {
     username: string,
+    title: string,
     text: string,
+    textHtml: string,
     id: number
 }
 

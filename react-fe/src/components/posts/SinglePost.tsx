@@ -10,11 +10,20 @@ function SinglePost() {
     const { id } = useParams<{id: string | undefined}>()
     const [info, setInfo] = React.useState<Post>({
         username: '',
+        title: '',
         id: 0,
-        text: ''
+        text: '',
+        textHtml: ''
     })
 
     React.useEffect(() => {
+        let editarea = document.getElementById('user-edit-area')
+
+        if (info.id !==  0) {
+            editarea!.innerHTML = info.textHtml
+            return
+        }
+
         const postCheck = async () => {
             let response = await fetch(`/api/posts/${id}`, {
                 method: "GET",
@@ -25,19 +34,20 @@ function SinglePost() {
             let data = await response.json()
     
             if (response.status === 200) {
-               setInfo(data)
+                setInfo(data)
             } 
         }
 
         postCheck()
-    }, [id, tokens])
+    }, [id, tokens, info])
 
     return (
         <div>
             {info.id === 0 ? <h1>404 - Not found</h1> : (
-                <>
-                    <h1>Por {info.username}</h1>
-                    <h2>{info.text}</h2>
+                <> 
+                    <h1>{info.title}</h1>
+                    <h4>Por {info.username}</h4>
+                    <div id='user-edit-area'/>
 
                     <PostOptions id={id} username={info.username} />
                 </>

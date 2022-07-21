@@ -5,7 +5,9 @@ from database import Base
 class Post(Base):
     __tablename__ = 'posts'
     id = Column(Integer, primary_key=True)
+    title = Column(String(256))
     text = Column(String(256))
+    textHtml = Column(String(256))
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     owner = relationship("User", back_populates="posts")

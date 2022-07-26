@@ -1,8 +1,7 @@
 import React from 'react'
 import AuthContext from '../../contexts/AuthContext'
-import { Link, useNavigate } from 'react-router-dom'
-import Quill from 'quill'
-import "../../static/quill.snow.css"
+import { useNavigate } from 'react-router-dom'
+import PostForm from './PostForm'
 
 function CreatePosts() {
     
@@ -35,44 +34,8 @@ function CreatePosts() {
         }
     }
 
-    React.useEffect(() => {
-        const options = {
-            modules: {
-              toolbar: [
-                [{ header: [1, 2, false] }],
-                ['bold', 'italic', 'underline'],
-              ]
-            },
-            placeholder: 'Compose an epic...',
-            theme: 'snow'
-        };
-
-        const edDiv = document.getElementById('editor')
-        new Quill(edDiv, options)
-        const elements = document.getElementsByClassName('ql-toolbar')
-
-        if (elements.length > 1) {
-            const parent = document.getElementById('test')
-            parent!.removeChild(elements[0])
-        }
-    }, [])
-
     return (
-        <div>
-            <h1>Create Posts</h1>
-            <form id="form" onSubmit={handleSubmit}>
-                <label>Title</label>
-                <input type='text' id='text' />
-
-                <label>Content</label>
-                <div id="test">
-                    <div id="editor" />
-                </div>
-                
-                <button type='submit'>Submit</button>
-            </form>
-            <Link to='/'>Go back</Link>
-        </div>
+        <PostForm mode="create" func={handleSubmit}/>
     )
 }
 

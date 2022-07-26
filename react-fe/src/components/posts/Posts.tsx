@@ -8,6 +8,7 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
 
 
 function Posts() {
@@ -45,11 +46,11 @@ function Posts() {
             }
 
             return ( 
-                <div key={post.id}>
+                <Container sx={{mb: '20px'}} maxWidth="sm" key={post.id}>
                     <Card sx={{ minWidth: 275 }}>
                         <CardContent>
                             <Typography variant="h5" component="div">
-                                {post.title}
+                                {post.title === '' ? 'No title yet' : (post.title)}
                             </Typography>
                             <Typography sx={{ mb: 1.5 }} color="text.secondary">
                                 BY {post.username}
@@ -62,7 +63,7 @@ function Posts() {
                             <Button onClick={() => navigate(`/posts/${post.id}`)} size="small">Check this post</Button>
                         </CardActions>
                     </Card>
-                </div>
+                </Container>
             )
         })
         setLoop(postLoop)
@@ -77,22 +78,33 @@ function Posts() {
             }
     
             return pageNumbers.map(number => (
-                <button key={number} value={number} onClick={handleClick}>
+                <Button sx={{marginRight: '10px'}} variant="contained" key={number} value={number} onClick={handleClick}>
                     {number}
-                </button>
+                </Button>
             ))
         }
 
-        setPaginate(loadPages(pages))
+        if (pages > 1) {
+            setPaginate(loadPages(pages))
+        }
     }, [posts, navigate, pages, setPosts, tokens])
 
     return (
         <>
             {Object.values(posts).length === 0 ? <h1>No posts yet!</h1> : (
-                <>
-                    {loop}
-                    {paginate}
-                </>
+                <Container>
+                    <>
+                        <Typography variant="h4" sx={{textAlign: 'center'}} gutterBottom component="div">
+                            Posts
+                        </Typography>
+                        {loop}
+                        <Container sx={{display: 'flex', justifyContent: 'center'}}>
+                            <>
+                                {paginate}
+                            </>
+                        </Container>
+                    </>
+                </Container>
             )}
         </>
     )

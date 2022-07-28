@@ -52,13 +52,17 @@ class Paginator():
                 
                 upd_query[f'{postid}'] = {}
                 upd_query[f'{postid}']['username'] = users[f'{id}']
+                upd_query[f'{postid}']['title'] = post.title
                 upd_query[f'{postid}']['id'] = postid
                 upd_query[f'{postid}']['text'] = post.text
+                upd_query[f'{postid}']['textHtml'] = post.textHtml
         else:        
             id = query.owner_id
             user_obj = self.get_user_object(session, id)
             upd_query['username'] = user_obj.username
+            upd_query['title'] = query.title
             upd_query['id'] = query.id
             upd_query['text'] = query.text
+            upd_query['textHtml'] = query.textHtml
 
         return upd_query     

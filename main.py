@@ -26,6 +26,9 @@ def getPosts(session: Session = Depends(get_session),
     page_num: int = 1, page_size: int = 10, uid=Depends(auth.auth_wrapper)): 
     
     posts = session.query(models.Post)
+
+    if posts.count() == 0: raise HTTPException(status_code=404, detail='NO POSTS')
+
     return pag.paginate(posts, page_num, page_size, "/api/posts", session)
 
 @app.get("/api/posts/{id}")
@@ -40,7 +43,13 @@ def getPost(id:int, session: Session = Depends(get_session),
 def createPost(post:schemas.Post, session: Session = Depends(get_session), 
     uid=Depends(auth.auth_wrapper)):
     
-    post = models.Post(text = post.text, owner_id = uid)
+    strings = ['<meta', '<script', '<link']
+
+    for string in strings:
+        if string in post.text or string in post.textHtml:
+            raise HTTPException(status_code=422, detail='INVALID TEXT')
+
+    post = models.Post(title = post.title, text = post.text, textHtml = post.textHtml, owner_id = uid)
     session.add(post)
     session.commit()
     session.refresh(post)

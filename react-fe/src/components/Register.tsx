@@ -1,5 +1,8 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom'
+import UserForm from './UserForm'
+
+import Button from '@mui/material/Button'
 
 function Register() {
     
@@ -26,19 +29,10 @@ function Register() {
     }
 
     return (
-        <>
-            <h1>Register</h1>
-            <form onSubmit={handleSubmit}>
-                <label>Username</label>
-                <input type='username' id='username' />
-
-                <label>Password</label>
-                <input type='password' id='password' />
-
-                <button type='submit'>Submit</button>
-            </form>
-            <Link to='/'>Go back</Link>
-        </>
+        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px'}}>
+            <UserForm mode="Register" func={handleSubmit} />
+            <Link to='/'><Button color="info" variant="contained">Go Back</Button></Link>
+        </div>
     )
 }
 

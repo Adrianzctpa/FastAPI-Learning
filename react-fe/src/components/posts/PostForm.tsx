@@ -9,7 +9,6 @@ import Button from '@mui/material/Button'
 interface Props {
     mode: string,
     func: (e: React.FormEvent<HTMLFormElement>) => void,
-
 }
 
 function PostForm({mode, func}: Props) {

@@ -71,10 +71,10 @@ function PostOptions( { id, username } : postProps ) {
         <>
             <div>
                 {context.username === username ? 
-                <>
+                <div style={{display: 'flex', gap: '20px'}}>
                     <Button variant="outlined" onClick={deletePost}>Delete Post</Button> 
                     <Button variant="contained" id="upd" onClick={handleUpdate}>Update Post</Button>
-                </> 
+                </div> 
                 : null}
             </div>
             <div id="formtarget" style={{display: 'none', marginTop: '20px'}}>

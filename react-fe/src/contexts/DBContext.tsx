@@ -9,15 +9,18 @@ export interface Post {
     id: number
 }
 
-interface PostsObject {
+export interface PostsObject {
     [key: number]: Post
 }
 
 interface Props {
     posts: PostsObject,
+    userPosts: PostsObject,
     username: string,
     pages: number,
+    userPages: number,
     setPosts: (posts: PostsObject) => void,
+    setUserPosts: (posts: PostsObject) => void,
 }
 
 const DBContext = React.createContext<Props>(null!)
@@ -28,8 +31,11 @@ export const DBProvider = ({children}: {children: React.ReactNode}) => {
     
     const { tokens, loading, refresh, setLogstatus, setLoading }  = React.useContext(AuthContext)
     const [posts, setPosts] = React.useState<PostsObject>({})
+    const [userPosts, setUserPosts] = React.useState<PostsObject>({})
     const [username, setUsername] = React.useState<string>('')
     const [pages, setPages] = React.useState<number>(0)
+    const [userPages, setUserPages] = React.useState<number>(0)
+
 
     React.useEffect(() => {
 
@@ -51,7 +57,27 @@ export const DBProvider = ({children}: {children: React.ReactNode}) => {
             if (response.status === 200) {
                 setPosts(data.data)
                 setPages(data.pages)
-                setLogstatus(true)
+            } else {
+                refresh()
+            }
+        }
+
+        async function getUserPosts() {
+            if (!tokens) return
+
+            let response = await fetch("/api/user/posts", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${tokens.access}`
+                }
+            })
+        
+            let data = await response.json()
+            if (response.status === 404) return
+
+            if (response.status === 200) {
+                setUserPosts(data.data)
+                setUserPages(data.pages)
             } else {
                 refresh()
             }
@@ -80,6 +106,7 @@ export const DBProvider = ({children}: {children: React.ReactNode}) => {
         
         getUsername()
         getPosts()
+        getUserPosts()
 
         if (loading) {
             setLoading(false)
@@ -88,9 +115,12 @@ export const DBProvider = ({children}: {children: React.ReactNode}) => {
     
     const context = {
         posts: posts,
+        userPosts: userPosts,
         username: username,
         pages: pages,
+        userPages: userPages,
         setPosts: setPosts,
+        setUserPosts: setUserPosts,
     }
     
     return (

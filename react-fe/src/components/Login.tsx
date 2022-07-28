@@ -2,6 +2,9 @@ import React from 'react';
 import AuthContext from '../contexts/AuthContext'
 import DBContext from '../contexts/DBContext'
 import { Link } from 'react-router-dom'
+import UserForm from './UserForm'
+
+import Button from '@mui/material/Button'
 
 function Login() {
     
@@ -9,29 +12,19 @@ function Login() {
     const { username } = React.useContext(DBContext)
 
     return (
-        <>
+        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px'}}>
             {logstatus ?
                 <>
                     <h1>Hello {username}!</h1>
-                    <button onClick={logout}>Click me to logout!</button>           
+                    <Button variant="contained" onClick={logout}>Logout</Button>           
                 </> : (
                 <>
-                    <h1>Login</h1>
-
-                    <form onSubmit={login}>
-                        <label>Username</label>
-                        <input type='username' id='username' />
-        
-                        <label>Password</label>
-                        <input type='password' id='password' />
-        
-                        <button type='submit'>Submit</button>
-                    </form>
-                    <Link to="/register">Register</Link>
+                    <UserForm mode="Login" func={login} />
+                    <Link to='/register'><Button color="secondary" variant="contained">Don't have an account?</Button></Link>
                 </>
             )}
-            <Link to='/'>Go back</Link>
-        </>
+            <Link to='/'><Button color="info" variant="contained">Go Back</Button></Link>
+        </div>
     )
 }
 

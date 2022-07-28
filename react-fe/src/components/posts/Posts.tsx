@@ -1,6 +1,6 @@
 import React from 'react'
 import AuthContext from '../../contexts/AuthContext'
-import DBContext from '../../contexts/DBContext';
+import DBContext, {PostsObject} from '../../contexts/DBContext';
 import {useNavigate} from 'react-router-dom'
 
 import Card from '@mui/material/Card';
@@ -12,7 +12,7 @@ import Container from '@mui/material/Container';
 
 
 function Posts() {
-    const {posts, pages, setPosts} = React.useContext(DBContext)
+    const {posts, userPosts, userPages, pages, setPosts, setUserPosts} = React.useContext(DBContext)
     const {tokens} = React.useContext(AuthContext)
 
     const [loop, setLoop] = React.useState<React.ReactNode>([])
@@ -21,24 +21,45 @@ function Posts() {
     const navigate = useNavigate()
     const POSTS_PER_PAGE: number = 10
 
-    React.useEffect(() => {
-        const values = Object.values(posts) 
+    const handleClick = React.useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+        const button: HTMLButtonElement = e.currentTarget
 
-        const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
-            e.preventDefault()
-            const button: HTMLButtonElement = e.currentTarget
-    
-            let response = await fetch(`/api/posts?page_num=${button.value}&page_size=${POSTS_PER_PAGE}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${tokens.access}`
-                }
-            })
-            let data = await response.json()
-            if (response.status === 200) {
-                setPosts(data.data)
+        const url = button.name === 'Your Posts' ? '/api/user/posts' : '/api/posts'
+        const func = button.name === 'Your Posts' ? setUserPosts : setPosts
+
+        let response = await fetch(`${url}?page_num=${button.value}&page_size=${POSTS_PER_PAGE}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${tokens.access}`
+            }
+        })
+        let data = await response.json()
+        if (response.status === 200) {
+            func(data.data)
+        }
+    }, [setPosts, setUserPosts, tokens])
+
+    const loadPages = React.useCallback((page: number, name: string) => {
+        if (page <= 1) return []
+
+        const pageNumbers: Array<number> = [];
+
+        for (var i = 1; i <= page; i++) {
+            if (!pageNumbers.includes(i)) {
+                pageNumbers.push(i)
             }
         }
+
+        return pageNumbers.map(number => (
+            <Button sx={{marginRight: '10px'}} variant="contained" name={name} key={number} value={number} onClick={handleClick}>
+                {number}
+            </Button>
+        ))
+    }, [handleClick])
+
+    const loadLoop = React.useCallback((posts: PostsObject) => {
+        const values = Object.values(posts) 
 
         const postLoop = values.map((post) => {
             if (post.text.length > 100) {
@@ -66,37 +87,38 @@ function Posts() {
                 </Container>
             )
         })
-        setLoop(postLoop)
+        
+        return postLoop
+    }, [navigate])
 
-        const loadPages = (page: number) => {
-            const pageNumbers: Array<number> = [];
-    
-            for (var i = 1; i <= page; i++) {
-                if (!pageNumbers.includes(i)) {
-                    pageNumbers.push(i)
-                }
-            }
-    
-            return pageNumbers.map(number => (
-                <Button sx={{marginRight: '10px'}} variant="contained" key={number} value={number} onClick={handleClick}>
-                    {number}
-                </Button>
-            ))
+    const handleTransform = (e: React.MouseEvent<HTMLButtonElement>) => {
+        const button: HTMLButtonElement = e.currentTarget
+        
+        if (button.textContent === 'Your Posts') {
+            setLoop(loadLoop(userPosts))
+            setPaginate(loadPages(userPages, button.name))
+            button.textContent = 'All Posts'
+        } else {
+            setLoop(loadLoop(posts))
+            setPaginate(loadPages(userPages, button.name))
+            button.textContent = 'Your Posts'
         }
+    }
 
-        if (pages > 1) {
-            setPaginate(loadPages(pages))
-        }
-    }, [posts, navigate, pages, setPosts, tokens])
+    React.useEffect(() => {
+        setLoop(loadLoop(posts))
+        setPaginate(loadPages(pages, 'genPosts'))
+    }, [posts, pages, loadPages, loadLoop])
 
     return (
         <>
             {Object.values(posts).length === 0 ? <h1>No posts yet!</h1> : (
-                <Container>
+                <Container sx={{display: 'flex', flexDirection: 'column'}}>
                     <>
                         <Typography variant="h4" sx={{textAlign: 'center'}} gutterBottom component="div">
                             Posts
                         </Typography>
+                        <Button name="userPosts" sx={{alignSelf: 'center'}} onClick={handleTransform}>Your Posts</Button>
                         {loop}
                         <Container sx={{display: 'flex', justifyContent: 'center'}}>
                             <>
